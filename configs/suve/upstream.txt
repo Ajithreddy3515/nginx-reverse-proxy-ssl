@@ -1,0 +1,20 @@
+# ============================================================
+# BACKEND UPSTREAM CONFIGURATION
+# ============================================================
+
+upstream motor_backend {
+
+    server 127.0.0.1:8083;
+
+    # Additional backend server can be added for failover:
+    # server 127.0.0.1:8084 backup;
+}
+
+
+upstream admin_backend {
+
+    server 127.0.0.1:8082;
+
+    # Additional backend server can be added for failover:
+    # server 127.0.0.1:8085 backup;
+}

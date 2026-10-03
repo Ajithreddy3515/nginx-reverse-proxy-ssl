@@ -1,0 +1,97 @@
+# ============================================================
+# NGINX - HTTPS + REACT SPA + OTA FILE SERVER
+# ============================================================
+# Sanitized example configuration.
+# Replace example.com and filesystem paths with your
+# environment-specific values.
+# ============================================================
+
+
+# ============================================================
+# HTTP -> HTTPS REDIRECT
+# ============================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name example.com www.example.com;
+
+    return 301 https://$host$request_uri;
+}
+
+
+# ============================================================
+# HTTPS SERVER
+# ============================================================
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name example.com www.example.com;
+
+
+    # ========================================================
+    # SSL / TLS
+    # ========================================================
+
+    ssl_certificate
+        /etc/letsencrypt/live/example.com/fullchain.pem;
+
+    ssl_certificate_key
+        /etc/letsencrypt/live/example.com/privkey.pem;
+
+
+    # ========================================================
+    # WEBSITE ROOT
+    # ========================================================
+
+    root /var/www/html/website;
+
+    index index.html;
+
+
+    # ========================================================
+    # OTA FILE SERVER
+    # ========================================================
+    # Used for serving OTA packages/files.
+    # Directory listing is disabled.
+    # Files are returned as binary content.
+    # Caching is disabled so clients receive the latest file.
+    # ========================================================
+
+    location /ota/ {
+
+        alias /var/www/html/ota/;
+
+        autoindex off;
+
+        default_type application/octet-stream;
+
+        try_files $uri =404;
+
+
+        # Disable caching for OTA files
+
+        add_header Cache-Control
+            "no-cache, no-store, must-revalidate";
+
+        add_header Pragma "no-cache";
+
+        add_header Expires "0";
+    }
+
+
+    # ========================================================
+    # REACT SINGLE PAGE APPLICATION
+    # ========================================================
+
+    location / {
+
+        try_files
+            $uri
+            $uri/
+            /index.html;
+    }
+}
